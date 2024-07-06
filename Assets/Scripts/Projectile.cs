@@ -21,7 +21,7 @@ namespace DefaultNamespace
 
         private void Start()
         {
-            _rigidBody.AddForce(transform.forward * -_force);
+            _rigidBody.AddForce(transform.forward * _force);
         }
 
         [Server]

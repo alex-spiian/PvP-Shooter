@@ -1,17 +1,10 @@
 using DefaultNamespace;
 using Mirror;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Input = UnityEngine.Input;
 
 public class Player : NetworkBehaviour
 {
-    [SerializeField]
-    private PlayerMovement _playerMovement;
-    
-    [SerializeField]
-    private PlayerRotator _playerRotator;
-    
     [SerializeField]
     private TextMesh  _healthBar;
 
@@ -23,9 +16,16 @@ public class Player : NetworkBehaviour
     
     [SerializeField]
     private Camera _playerCamera;
+    
+    [SerializeField]
+    private Transform _weapon;
+
+    [SerializeField]
+    private int _speed = 5;
 
     [SyncVar]
-    private int _health = 4;
+    [SerializeField]
+    private int _health = 20;
 
     private InputHandler _inputHandler;
 
@@ -39,8 +39,6 @@ public class Player : NetworkBehaviour
         else
         {
             _playerCamera.enabled = false;
-            _playerMovement.enabled = false;
-            _playerRotator.enabled = false;
         }
     }
 
@@ -51,12 +49,15 @@ public class Player : NetworkBehaviour
         if (!Application.isFocused) return;
         if (isLocalPlayer)
         {
-            var velocity = _inputHandler.GetMovementInput(transform);
-            _playerMovement.Move(velocity);
-
+            var velocity = _inputHandler.GetMovementInput();
             var rotation = _inputHandler.GetYMouseRotation();
-            _playerRotator.Rotate(rotation);
+            var cameraRotation = _inputHandler.GetXMouseRotation();
+            _weapon.Rotate(cameraRotation);
 
+            _playerCamera.transform.Rotate(-cameraRotation);
+            transform.Translate(velocity * Time.deltaTime * _speed);
+            transform.Rotate(rotation);
+            
             if (Input.GetMouseButtonDown(0))
             {
                 CmdFire();
